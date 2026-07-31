@@ -29,7 +29,44 @@ cd cmake-build
 cmake -G "Visual Studio 17 2022" -A Win32 -DCMAKE_BUILD_TYPE=RelMinSize ..
 cmake --build .
 ```
+---
+
+Building directly in Visual Studio
+
+```bash
+    Open blitz3d.slnx/sln (or blitz3d.dsw) in Visual Studio.
+
+    Select the Release configuration. make sure it is Win32 platform
+
+    Rebuild the entire solution.
+
+    Build results will appear in the _release directory.
+```
+
+Prebuilt Releases
+```bash
+    Prebuilt binaries: Coming Soon!
+
+    Legacy prebuilt versions: Available on itch.io.
+```
+
+---
+
+FMOD DLL Required
+
+This version of Blitz3D uses the dynamic version of the FMOD audio library. When redistributing executables built with Blitz3D, you must include fmod.dll (found in the _runtime/bin directory) in the same directory as your application's executable.
+Below is Original README
+
 --------------------------
+
+
+
+
+
+
+
+
+
 
 ## Blitz3D open source release.
 
