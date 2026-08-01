@@ -1,4 +1,72 @@
-Scroll down for mod!
+# Blitz3D 2028 Overhaul
+
+### Requirements
+You will need **Microsoft Visual Studio** (tested with Community Editions 2017, 2022, and 2026).
+
+When installing Visual Studio, select the following workloads and components:
+* **Workload:** "Desktop development with C++"
+* **Individual Components:**
+  * For **VS 2022**: `v143 MSVC C++ MFC and ATL` note that it is not specially said exactly like this, as long it is v143 and MSVC MFC/ATL
+  * For **VS 2026**: `MSVC C++ MFC and ATL v14.51` note that it is not specially said exactly like this, as long it is v14.51 and MSVC MFC/ATL
+
+---
+
+### Building with CMake
+
+Run the following commands in the root directory of the Blitz3D source:
+
+**For Visual Studio 2026:**
+```bash
+mkdir cmake-build
+cd cmake-build
+cmake -G "Visual Studio 18 2026" -A Win32 -DCMAKE_BUILD_TYPE=RelMinSize ..
+cmake --build .
+```
+**For Visual Studio 2022**
+```bash
+mkdir cmake-build
+cd cmake-build
+cmake -G "Visual Studio 17 2022" -A Win32 -DCMAKE_BUILD_TYPE=RelMinSize ..
+cmake --build .
+```
+---
+
+Building directly in Visual Studio
+
+```bash
+    Open blitz3d.slnx/sln (or blitz3d.dsw) in Visual Studio.
+
+    Select the Release configuration. make sure it is Win32 platform
+
+    Rebuild the entire solution.
+
+    Build results will appear in the _release directory.
+```
+
+Prebuilt Releases
+```bash
+    Prebuilt binaries: Coming Soon!
+
+    Legacy prebuilt versions: Available on itch.io.
+```
+
+---
+
+FMOD DLL Required
+
+This version of Blitz3D uses the dynamic version of the FMOD audio library. When redistributing executables built with Blitz3D, you must include fmod.dll (found in the _runtime/bin directory) in the same directory as your application's executable.
+Below is Original README
+
+--------------------------
+
+
+
+
+
+
+
+
+
 
 ## Blitz3D open source release.
 
@@ -39,11 +107,5 @@ cmake --build .
 ### FMOD dll required!
 
 * This version of blitz3D uses the dynamic version of the fmod audio lib. When redistributing executables built with Blitz3D you will need to include the fmod.dll file found in the _runtime/bin directory with your programs. This should be placed in the same directory as your program's executable.
-
---------------------------
-Blitz3d 2027
-You will need to install Microsoft Visual Studio, as the original one says 2017,2022 should be fine. and 2026 (tested by me)
-Make sure to download MSVC ATL and MFC v14.51 if it is visual studio community 2026 it should come installed default but double check. and follow original ones too
-
 
 
