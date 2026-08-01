@@ -111,6 +111,7 @@ static string getPath( const string &f ){
 MainFrame::MainFrame():exit_flag(false){
 }
 
+
 int MainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	CFrameWnd::OnCreate(lpCreateStruct);
 	this->DragAcceptFiles();
@@ -194,9 +195,17 @@ int MainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	int cornerPreference = 2; // round corners
 	::DwmSetWindowAttribute(GetSafeHwnd(), 33, &cornerPreference, sizeof(cornerPreference));
 
-	// Paint the status bar background slate gray
+
 	statusBar.GetStatusBarCtrl().SetBkColor(RGB(30, 30, 30));
-	// ===============================================
+	m_panelFont.CreatePointFont(90, _T("Consolas"));
+
+	RECT rectPanel = { 0, 0, 0, 0 };
+	m_wndOutputPanel.Create(
+		WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL |
+		ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY,
+		rectPanel, this, 50001
+	);
+	m_wndOutputPanel.SetFont(&m_panelFont);
 
 	return 0;
 }
@@ -257,17 +266,26 @@ BOOL MainFrame::OnEraseBkgnd(CDC* dc) {
 void MainFrame::OnSize(UINT type, int sw, int sh) {
 	CFrameWnd::OnSize(type, sw, sh);
 
-	CRect r, t;GetClientRect(&r);
+	CRect r, t; GetClientRect(&r);
 	int x = r.left, y = r.top, w = r.Width(), h = r.Height();
 
 	if (!prefs.win_notoolbar) {
-		statusBar.GetWindowRect(&t);h -= t.Height();
-		toolBar.GetWindowRect(&t);y += t.Height();h -= t.Height();
+		statusBar.GetWindowRect(&t); h -= t.Height();
+		toolBar.GetWindowRect(&t); y += t.Height(); h -= t.Height();
+	}
+
+	int panelHeight = 0;
+	if (m_wndOutputPanel.GetSafeHwnd()) {
+		panelHeight = 120; 
+
+		int panelY = y + h - panelHeight;
+		m_wndOutputPanel.MoveWindow(x, panelY, w, panelHeight);
+
+		h -= panelHeight;
 	}
 
 	tabber.MoveWindow(x, y, w, h);
 }
-
 static char* bbFilter =
 
 "Blitz Basic files (.bb)|*.bb|"
@@ -975,6 +993,16 @@ void MainFrame::quick_Help(){
 			h->Navigate( url.c_str(),0,0 );
 		}
 	}
+}
+
+void MainFrame::LogError(const char* text) {
+	if (!m_wndOutputPanel.GetSafeHwnd()) return;
+
+	int len = m_wndOutputPanel.GetWindowTextLength();
+	m_wndOutputPanel.SetSel(len, len);
+
+	string formatted = string(text) + "\r\n";
+	m_wndOutputPanel.ReplaceSel(formatted.c_str());
 }
 
 void MainFrame::OnActivate( UINT state,CWnd *other,BOOL min ){

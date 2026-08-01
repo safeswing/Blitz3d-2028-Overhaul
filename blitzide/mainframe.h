@@ -74,7 +74,11 @@ public:
 private:
 	Tabber tabber;
 	CToolBar toolBar;
-	CStatusBar statusBar;
+	CStatusBar statusBar; 
+	CEdit m_wndOutputPanel;
+	CFont m_panelFont;
+public:
+	void LogError(const char* text);
 
 	map<CWnd*,Editor*> editors;
 	map<CWnd*,HtmlHelp*> helps;
