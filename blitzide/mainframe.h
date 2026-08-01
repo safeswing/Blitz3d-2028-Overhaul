@@ -56,6 +56,7 @@ public:
 	afx_msg void helpForward();
 	afx_msg void helpSupport();
 	afx_msg void helpAbout();
+	afx_msg void helpErrorCodes();
 
 	afx_msg void logSyn();
 	afx_msg void logIR();

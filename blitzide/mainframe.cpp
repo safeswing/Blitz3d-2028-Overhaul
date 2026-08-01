@@ -56,6 +56,7 @@ BEGIN_MESSAGE_MAP( MainFrame,CFrameWnd )
 	ON_COMMAND( ID_BACK,helpBack )
 	ON_COMMAND( ID_FORWARD,helpForward )
 	ON_COMMAND( ID_ABOUT,helpAbout )
+	ON_COMMAND(ID_HELP_LAUNCHER_ERRORS, helpErrorCodes)
 
 	ON_UPDATE_COMMAND_UI( ID_NEW,updateCmdUI )
 	ON_UPDATE_COMMAND_UI( ID_OPEN,updateCmdUI )
@@ -83,6 +84,7 @@ BEGIN_MESSAGE_MAP( MainFrame,CFrameWnd )
 	ON_UPDATE_COMMAND_UI( ID_FORWARD,updateCmdUI )
 	ON_UPDATE_COMMAND_UI( ID_ESCAPE,updateCmdUI )
 	ON_UPDATE_COMMAND_UI( ID_QUICKHELP,updateCmdUI )
+	ON_UPDATE_COMMAND_UI(ID_HELP_LAUNCHER_ERRORS, updateCmdUI)
 	ON_UPDATE_COMMAND_UI_RANGE( 333,343,updateCmdUIRange )
 END_MESSAGE_MAP()
 
@@ -199,6 +201,17 @@ int MainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	return 0;
 }
 
+
+void MainFrame::helpErrorCodes() {
+	string msg =
+		"Blitz3D Launcher Error Codes Reference:\n\n"
+		"ERR_0x5X95_01 - Display depth lower than 16-bit color requirement.\n"
+		"ERR_0x5X95_02 - Failed to locate application root directory.\n"
+		"ERR_0x5X95_03 - SetCurrentDirectory failed to switch path.\n"
+		"ERR_0x5X95_04 - Failed to launch bin\\ide.exe executable.";
+
+	::MessageBoxA(GetSafeHwnd(), msg.c_str(), "Blitz3D Error Codes", MB_OK | MB_ICONINFORMATION);
+}
 
 void MainFrame::setTitle(const string& s) {
 	SetWindowText(("Blitz3D - " + s).c_str());
@@ -868,9 +881,10 @@ void MainFrame::updateCmdUI( CCmdUI *ui ){
 
 	Editor *e=getEditor();
 
-	switch( ui->m_nID ){
+	switch (ui->m_nID) {
 	case ID_NEW:case ID_OPEN:case ID_HOME:
-		ui->Enable( true );
+	case ID_HELP_LAUNCHER_ERRORS:
+		ui->Enable(true);
 		break;
 	case ID_DEBUG:
 		ui->SetCheck( prefs.prg_debug );ui->Enable( true );
