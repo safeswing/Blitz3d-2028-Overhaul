@@ -10,6 +10,7 @@ char _credits[]=
 "\r\n"
 "Programming and design: Mark Sibly\r\n\r\n"
 "Documentation: Mark Sibly, Simon Harrison, Paul Gerfen, Shane Monroe and the Blitz Doc Team\r\n\r\n"
+"Modifications & Maintenance: Safeswing\r\n\r\n"
 "Testing and support: James Boyd, Simon Armstrong and the Blitz Dev Team\r\n\r\n"
 "Image loader courtesy of FreeImage by Floris van den berg\r\n\r\n"
 "Please visit www.blitzbasic.com for all your Blitz related needs!";
@@ -86,7 +87,7 @@ void aboutBlitz( bool delay ){
 	string lnk_v=itoa(lnk_ver/1000)+"."+itoa(lnk_ver%1000);
 	string run_v=itoa(run_ver/1000)+"."+itoa(run_ver%1000);
 
-	string t="Blitz3D - Release Version\n\n";
+	string t="Blitz3D 2028 - Mod\n\n";
 
 	about.GetDlgItem( IDC_PRODUCT )->SetWindowText( t.c_str() );
 
