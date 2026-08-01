@@ -259,6 +259,11 @@ int Editor::OnCreate( LPCREATESTRUCT cs ){
 
 	cursorMoved();
 
+	MainFrame* mainFrame = (MainFrame*)AfxGetMainWnd();
+	if (mainFrame) {
+		mainFrame->LogError("[Console Initialized] Ready to capture Blitz3D build output.");
+	}
+
 	return 0;
 }
 
