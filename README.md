@@ -1,4 +1,11 @@
 # Blitz3D 2028 Overhaul
+It focuses on being more modern and overhauling like some UI changes, bit64, viewport, error consoles (RL) and more!
+Currently being developed. and is in Beta yet. however, first stable version will be released in 2027/2028 as the project is big and many major changes.
+scroll down if you wanna build it right now. note that its still in development.
+
+
+
+
 
 ### Requirements
 You will need **Microsoft Visual Studio** (tested with Community Editions 2017, 2022, and 2026).
