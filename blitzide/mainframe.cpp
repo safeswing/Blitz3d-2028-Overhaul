@@ -463,7 +463,7 @@ bool MainFrame::open( const string &f ){
 	ifstream in( file.c_str() );
 	if( !in.good() ){
 		string e="Error reading file \""+f+"\"";
-		AfxMessageBox( e.c_str(),MB_ICONWARNING );
+		LogError(e.c_str());
 		return false;
 	}
 	newed( file );
@@ -522,7 +522,7 @@ bool MainFrame::save( int n ){
 	ofstream out( t.c_str(),om );
 	if( !out.good() ){
 		string e="Error writing file \""+t+"\"";
-		AfxMessageBox( e.c_str(),MB_ICONWARNING );
+		LogError(e.c_str());
 		return false;
 	}
 	e->getText( out );
@@ -716,7 +716,7 @@ void MainFrame::compile( const string &cmd ){
 
 	if( !err.size() ) return;
 
-	AfxMessageBox( err.c_str(),MB_ICONWARNING|MB_OK );
+	LogError(err.c_str());
 }
 
 void MainFrame::build( bool exec,bool publish ){
@@ -986,7 +986,7 @@ void MainFrame::quick_Help(){
 		string url=commandURL( t );
 		if( !url.size() ){
 			string ex="Unable to open help file for \""+t+"\"";
-			AfxMessageBox( ex.c_str(),MB_ICONWARNING );
+			LogError(ex.c_str());
 			return;
 		}
 		if( HtmlHelp *h=findHelp() ){
