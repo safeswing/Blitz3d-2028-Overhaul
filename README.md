@@ -16,10 +16,11 @@ When installing Visual Studio, select the following workloads and components:
   * For **VS 2022**: `v143 MSVC C++ MFC and ATL` note that it is not specially said exactly like this, as long it is v143 and MSVC MFC/ATL
   * For **VS 2026**: `MSVC C++ MFC and ATL v14.51` note that it is not specially said exactly like this, as long it is v14.51 and MSVC MFC/ATL
 
+---
 
-  1. make sure blitzide is the startup project
-  2. set up env path in blitzide
-  3.
+1. make sure blitzide is the startup project
+2. set up env path in blitzide
+3.
   
 
 ---
