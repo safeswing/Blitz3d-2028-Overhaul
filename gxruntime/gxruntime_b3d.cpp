@@ -100,12 +100,17 @@ gxRuntime *gxRuntime::openRuntime( HINSTANCE hinst,const string &cmd_line,Debugg
 		ws = WS_CHILD | WS_VISIBLE;
 	}
 
-	HWND hwnd = CreateWindowEx(ws_ex, "Blitz Runtime Class", app_t, ws, 0, 0, 0, 0, parentHwnd, 0, hinst, 0);
+	RECT rc = { 0, 0, 0, 0 };
+	if (parentHwnd) {
+		GetClientRect(parentHwnd, &rc);
+	}
+
+	HWND hwnd = CreateWindowEx(ws_ex, "Blitz Runtime Class", app_t, ws, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, parentHwnd, 0, hinst, 0);
 	if (parentHwnd) SetParent(hwnd, parentHwnd);
 
-	UpdateWindow( hwnd );
+	UpdateWindow(hwnd);
 
-	runtime=d_new gxRuntime( hinst,cmd_line,hwnd );
+	runtime = d_new gxRuntime(hinst, cmd_line, hwnd);
 	return runtime;
 }
 
@@ -359,15 +364,21 @@ LRESULT gxRuntime::windowProc( HWND hwnd,UINT msg,WPARAM wparam,LPARAM lparam ){
 	PAINTSTRUCT ps;
 
 	//handle 'special' messages!
-	switch( msg ){
-		case WM_PAINT:
-			if( gfx_mode && !auto_suspend ){
-				if( !graphics->restore() ) gfx_lost=true;
-			}
-			BeginPaint( hwnd,&ps );
+	//handle 'special' messages!
+	switch (msg) {
+	case WM_SIZE:
+		if (gfx_mode) {
 			paint();
-			EndPaint( hwnd,&ps );
-			return DefWindowProc( hwnd,msg,wparam,lparam );
+		}
+		return DefWindowProc(hwnd, msg, wparam, lparam);
+	case WM_PAINT:
+		if (gfx_mode && !auto_suspend) {
+			if (!graphics->restore()) gfx_lost = true;
+		}
+		BeginPaint(hwnd, &ps);
+		paint();
+		EndPaint(hwnd, &ps);
+		return DefWindowProc(hwnd, msg, wparam, lparam);
 		case WM_ERASEBKGND:
 			return gfx_mode ? 1 : DefWindowProc( hwnd,msg,wparam,lparam );
 		case WM_CLOSE:
