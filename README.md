@@ -17,23 +17,6 @@ When installing Visual Studio, select the following workloads and components:
   * For **VS 2026**: `MSVC C++ MFC and ATL v14.51` note that it is not specially said exactly like this, as long it is v14.51 and MSVC MFC/ATL
 
 ---
-1. Open the .sln in cmake-build
-2. make sure blitzide is the startup project
-<img width="342" height="412" alt="image" src="https://github.com/user-attachments/assets/f1475862-24c1-44c1-9305-42b285ac135b" />
-
-3. set up env path in blitzide example mine by using clone repository in visual studio
-
-`BLITZPATH=C:\Users\Safeswing\source\repos\Blitz3d-2028-Overhaul\_release
-$(LocalDebuggerEnvironment)` 
-
-**in blitzide properties to configuration properties to debugging**
-
-<img width="599" height="527" alt="image" src="https://github.com/user-attachments/assets/3d2d319e-ae04-4ccf-9d21-933479a20ddc" />
-
-4. Run it
-  
-
----
 
 ### Building with CMake
 
@@ -53,6 +36,28 @@ cd cmake-build
 cmake -G "Visual Studio 17 2022" -A Win32 -DCMAKE_BUILD_TYPE=RelMinSize ..
 cmake --build .
 ```
+---
+
+1. Open the .sln in cmake-build
+2. make sure blitzide is the startup project
+<img width="342" height="412" alt="image" src="https://github.com/user-attachments/assets/f1475862-24c1-44c1-9305-42b285ac135b" />
+
+3. set up env path in blitzide example mine by using clone repository in visual studio
+
+`BLITZPATH=C:\Users\YOURUSER\source\repos\Blitz3d-2028-Overhaul\_release
+$(LocalDebuggerEnvironment)` 
+Replace `YOURUSER` with your actual user. 
+
+**in blitzide properties to configuration properties to debugging**
+
+<img width="599" height="527" alt="image" src="https://github.com/user-attachments/assets/3d2d319e-ae04-4ccf-9d21-933479a20ddc" />
+
+
+4. Run it
+  
+
+
+
 ---
 
 Building directly in Visual Studio
