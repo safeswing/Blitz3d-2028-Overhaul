@@ -245,7 +245,10 @@ void MainFrame::helpErrorCodes() {
 		"ERR_0x5X95_01 - Display depth lower than 16-bit color requirement.\n"
 		"ERR_0x5X95_02 - Failed to locate application root directory.\n"
 		"ERR_0x5X95_03 - SetCurrentDirectory failed to switch path.\n"
-		"ERR_0x5X95_04 - Failed to launch bin\\ide.exe executable.";
+		"ERR_0x5X95_04 - Failed to launch bin\\ide.exe executable.\n"
+		"ERR_0x5X95_05 - Failed creating executable .\n"
+		"ERR_0x5X95_06 - Has error launching the debugger.\n"
+	    "ERR_0x5X95_04.5 - Unable to open input file";
 
 	::MessageBoxA(GetSafeHwnd(), msg.c_str(), "Blitz3D Error Codes", MB_OK | MB_ICONINFORMATION);
 }

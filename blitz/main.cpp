@@ -202,7 +202,7 @@ int _cdecl main( int argc,char *argv[] ){
 	}
 
 	ifstream in( in_file.c_str() );
-	if( !in ) err( "Unable to open input file" );
+	if( !in ) err( "Unable to open input file (ERR_0x5X95_04.5)" );
 	if( !quiet ){
 		showInfo();
 		cout<<"Compiling \""<<in_file<<"\""<<endl;
@@ -261,7 +261,7 @@ int _cdecl main( int argc,char *argv[] ){
 	if( out_file.size() ){
 		if( !veryquiet ) cout<<"Creating executable \""<<out_file<<"\"..."<<endl;
 		if( !module->createExe( out_file.c_str(),(home+"/bin/runtime.dll").c_str() ) ){
-			err( "Error creating executable" );
+			err( "Error creating executable (ERR_0x5X95_05)" );
 		}
 	}else if( !compileonly ){
 		void *entry=module->link( runtimeModule );
@@ -277,7 +277,7 @@ int _cdecl main( int argc,char *argv[] ){
 				GetDebugger gd=(GetDebugger)GetProcAddress( dbgHandle,"debuggerGetDebugger" );
 				if( gd ) debugger=gd( module,environ );
 			}
-			if( !debugger ) err( "Error launching debugger" );
+			if( !debugger ) err( "Error launching debugger (ERR_0x5X95_06)" );
 		}
 
 		if( !veryquiet ) cout<<"Executing..."<<endl;
