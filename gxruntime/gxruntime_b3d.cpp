@@ -86,10 +86,22 @@ gxRuntime *gxRuntime::openRuntime( HINSTANCE hinst,const string &cmd_line,Debugg
 	busy=suspended=false;
 	run_flag=true;
 
-	const char *app_t=" ";
-	int ws=WS_CAPTION,ws_ex=0;
+	const char* app_t = " ";
+	int ws = WS_CAPTION, ws_ex = 0;
 
-	HWND hwnd=CreateWindowEx( ws_ex,"Blitz Runtime Class",app_t,ws,0,0,0,0,0,0,0,0 );
+	// Check if parent window handle was passed from command line
+	HWND parentHwnd = 0;
+	int pos = cmd_line.find("-hwnd ");
+	if (pos != string::npos) {
+		parentHwnd = (HWND)atoi(cmd_line.substr(pos + 6).c_str());
+	}
+
+	if (parentHwnd) {
+		ws = WS_CHILD | WS_VISIBLE;
+	}
+
+	HWND hwnd = CreateWindowEx(ws_ex, "Blitz Runtime Class", app_t, ws, 0, 0, 0, 0, parentHwnd, 0, hinst, 0);
+	if (parentHwnd) SetParent(hwnd, parentHwnd);
 
 	UpdateWindow( hwnd );
 
@@ -889,21 +901,21 @@ gxGraphics *gxRuntime::openGraphics( int w,int h,int d,int driver,int flags ){
 				hh=h;
 			}
 
-			SetWindowLong( hwnd,GWL_STYLE,ws );
-			SetWindowPos( hwnd,0,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_FRAMECHANGED );
+			SetWindowLong(hwnd, GWL_STYLE, ws);
+			SetWindowPos(hwnd, 0, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 
-			RECT w_r,c_r;
-			GetWindowRect( hwnd,&w_r );
-			GetClientRect( hwnd,&c_r );
-			int tw=(w_r.right-w_r.left)-(c_r.right-c_r.left);
-			int th=(w_r.bottom-w_r.top)-(c_r.bottom-c_r.top );
-			int cx=( GetSystemMetrics( SM_CXSCREEN )-ww )/2;
-			int cy=( GetSystemMetrics( SM_CYSCREEN )-hh )/2;
-			POINT zz={0,0};
-			ClientToScreen( hwnd,&zz );
-			int bw=zz.x-w_r.left,bh=zz.y-w_r.top;
-			int wx=cx-bw,wy=cy-bh;if( wy<0 ) wy=0;		//not above top!
-			MoveWindow( hwnd,wx,wy,ww+tw,hh+th,true );
+			RECT w_r, c_r;
+			GetWindowRect(hwnd, &w_r);
+			GetClientRect(hwnd, &c_r);
+			int tw = (w_r.right - w_r.left) - (c_r.right - c_r.left);
+			int th = (w_r.bottom - w_r.top) - (c_r.bottom - c_r.top);
+			int cx = (GetSystemMetrics(SM_CXSCREEN) - ww) / 2;
+			int cy = (GetSystemMetrics(SM_CYSCREEN) - hh) / 2;
+			POINT zz = { 0,0 };
+			ClientToScreen(hwnd, &zz);
+			int bw = zz.x - w_r.left, bh = zz.y - w_r.top;
+			int wx = cx - bw, wy = cy - bh;if (wy < 0) wy = 0;		//not above top!
+			MoveWindow(hwnd, wx, wy, ww + tw, hh + th, true);
 		}
 	}else{
 		backupWindowState();

@@ -801,7 +801,19 @@ void MainFrame::build(bool exec, bool publish) {
 		prefs.prg_lastbuild = e->getName();
 	}
 
-	compile(prefs.homeDir + "/bin/blitzcc -q " + opts + " \"" + src + "\" " + prefs.cmd_line);
+	// Retrieve the HWND of the right pane and format it into the command line[cite: 5]
+	string extra_args = "";
+	if (exec && m_wndSplitter.GetSafeHwnd()) {
+		CWnd* pRightPane = m_wndSplitter.GetDlgItem(m_wndSplitter.IdFromRowCol(0, 1));
+		if (pRightPane && pRightPane->GetSafeHwnd()) {
+			char hwndBuf[64];
+			sprintf(hwndBuf, " -hwnd %d", (int)(INT_PTR)pRightPane->GetSafeHwnd());
+			extra_args = string(hwndBuf);
+		}
+	}
+
+	// Append extra_args to the compile command[cite: 5]
+	compile(prefs.homeDir + "/bin/blitzcc -q " + opts + " \"" + src + "\" " + prefs.cmd_line + extra_args);
 
 	if (!src_file.size()) e->setName("");
 }

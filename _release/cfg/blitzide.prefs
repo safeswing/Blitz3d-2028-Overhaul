@@ -2,7 +2,7 @@ prg_debug	0
 prg_lastbuild	
 win_maximized	0
 win_notoolbar	0
-win_rect	170 72 1620 1063
+win_rect	-292 579 1413 1578
 font_editor	"Lucida Console" 12
 font_tabs	"Verdana" 10
 font_debug	"Verdana" 10
@@ -19,3 +19,4 @@ edit_blkcursor	0
 edit_backup	2
 img_toolbar	toolbar.bmp
 cmd_line	
+file_recent	C:\Users\Safeswing\Downloads\test.bb
