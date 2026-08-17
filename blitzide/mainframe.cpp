@@ -185,7 +185,7 @@ int MainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	int cornerPreference = 2; // Round corners
 	::DwmSetWindowAttribute(GetSafeHwnd(), 33, &cornerPreference, sizeof(cornerPreference));
 
-	// Safe retrieval of the left pane window handle without triggering GetPane assertions
+	// Safe retrieval of the left pane window handle
 	if (m_wndSplitter.GetSafeHwnd()) {
 		CWnd* pLeftPane = m_wndSplitter.GetDlgItem(m_wndSplitter.IdFromRowCol(0, 0));
 		if (pLeftPane && pLeftPane->GetSafeHwnd()) {
@@ -307,7 +307,9 @@ void MainFrame::OnSize(UINT type, int sw, int sh) {
 		}
 	}
 
-	if (m_wndSplitter.GetSafeHwnd()) {
+	// CRITICAL FIX: Ensure the splitter AND its pane exist before moving them.
+	// WM_SIZE fires *before* OnCreateClient finishes creating views!
+	if (m_wndSplitter.GetSafeHwnd() && m_wndSplitter.GetDlgItem(m_wndSplitter.IdFromRowCol(0, 0))) {
 		m_wndSplitter.MoveWindow(x, y, w, h);
 
 		CWnd* pLeftPane = m_wndSplitter.GetDlgItem(m_wndSplitter.IdFromRowCol(0, 0));
