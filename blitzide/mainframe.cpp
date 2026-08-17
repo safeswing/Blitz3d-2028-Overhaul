@@ -13,6 +13,13 @@
 #include <fstream>
 #include <sstream>
 
+class CPaneView : public CView {
+	DECLARE_DYNCREATE(CPaneView)
+public:
+	virtual void OnDraw(CDC* pDC) {} // Satisfies abstract CView requirement
+};
+IMPLEMENT_DYNCREATE(CPaneView, CView)
+
 IMPLEMENT_DYNAMIC( MainFrame,CFrameWnd )
 BEGIN_MESSAGE_MAP( MainFrame,CFrameWnd )
 	ON_WM_CREATE()
@@ -158,9 +165,9 @@ int MainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	statusBar.SetPaneInfo(1, ID_COLROWTEXT, 0, 128);
 	statusBar.SetPaneText(0, "");statusBar.SetPaneText(1, "");
 
-	tabber.Create(WS_VISIBLE | WS_CHILD | TCS_HOTTRACK, CRect(0, 0, 0, 0), this, 1);
-	tabber.SetFont(&prefs.tabsFont);
-	tabber.setListener(this);
+	//tabber.Create(WS_VISIBLE | WS_CHILD | TCS_HOTTRACK, CRect(0, 0, 0, 0), this, 1);
+	//tabber.SetFont(&prefs.tabsFont);
+	//tabber.setListener(this);
 
 	prefs.win_notoolbar = !prefs.win_notoolbar;
 	escape();
@@ -175,18 +182,6 @@ int MainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	file->InsertMenu(12, MF_BYPOSITION | MF_ENABLED | MF_POPUP, (UINT)menu.m_hMenu, "&Recent Files");
 	menu.Detach();
 
-	helpHome();
-
-	trackmem(true);
-
-	if (blitzIDE.m_lpCmdLine[0]) {
-		string t = string(blitzIDE.m_lpCmdLine);
-		if (t[0] == '\"') t = t.substr(1, t.size() - 2);
-		open(t);
-	}
-	else {
-		SetCurrentDirectory((prefs.homeDir + "/samples").c_str());
-	}
 
 	// === MODERN DARK MODE & STATUS BAR OVERRIDES ===
 	BOOL bDarkMode = TRUE;
@@ -195,20 +190,60 @@ int MainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	int cornerPreference = 2; // round corners
 	::DwmSetWindowAttribute(GetSafeHwnd(), 33, &cornerPreference, sizeof(cornerPreference));
 
+	CWnd* pLeftPane = m_wndSplitter.GetPane(0, 0);
 
-	statusBar.GetStatusBarCtrl().SetBkColor(RGB(30, 30, 30));
-	m_panelFont.CreatePointFont(90, _T("Consolas"));
+	if (pLeftPane && pLeftPane->GetSafeHwnd()) {
+		CRect lpRect;
+		pLeftPane->GetClientRect(&lpRect);
 
-	RECT rectPanel = { 0, 0, 0, 0 };
-	m_wndOutputPanel.Create(
-		WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL |
-		ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY,
-		rectPanel, this, 50001
-	);
-	m_wndOutputPanel.SetFont(&m_panelFont);
+		// Anchor the tabber control inside the left pane handle container window!
+		tabber.Create(WS_VISIBLE | WS_CHILD | TCS_HOTTRACK, lpRect, pLeftPane, 1);
+		tabber.SetFont(&prefs.tabsFont);
+		tabber.setListener(this);
 
+		helpHome();
+
+		trackmem(true);
+
+		if (blitzIDE.m_lpCmdLine[0]) {
+			string t = string(blitzIDE.m_lpCmdLine);
+			if (t[0] == '\"') t = t.substr(1, t.size() - 2);
+			open(t);
+		}
+		else {
+			SetCurrentDirectory((prefs.homeDir + "/samples").c_str());
+		}
+
+	}
 	return 0;
 }
+
+BOOL MainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext) {
+	CRect r;
+	GetClientRect(&r);
+
+	if (!m_wndSplitter.CreateStatic(this, 1, 2)) {
+		AfxMessageBox("Failed to initialize splitter matrix layout!");
+		return FALSE;
+	}
+
+	int codeWidth = static_cast<int>(r.Width() * 0.70);
+
+	// Pass RUNTIME_CLASS(CPaneView) instead of CWnd/CView
+	if (!m_wndSplitter.CreateView(0, 0, RUNTIME_CLASS(CPaneView), CSize(codeWidth, r.Height()), pContext)) {
+		AfxMessageBox("Failed to create left container pane view!");
+		return FALSE;
+	}
+
+	if (!m_wndSplitter.CreateView(0, 1, RUNTIME_CLASS(CPaneView), CSize(r.Width() - codeWidth, r.Height()), pContext)) {
+		AfxMessageBox("Failed to create right container pane view!");
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+
 
 
 void MainFrame::helpErrorCodes() {
@@ -270,22 +305,33 @@ void MainFrame::OnSize(UINT type, int sw, int sh) {
 	int x = r.left, y = r.top, w = r.Width(), h = r.Height();
 
 	if (!prefs.win_notoolbar) {
-		statusBar.GetWindowRect(&t); h -= t.Height();
-		toolBar.GetWindowRect(&t); y += t.Height(); h -= t.Height();
+		// Guard with GetSafeHwnd() checks before querying window dimensions!
+		if (statusBar.GetSafeHwnd()) {
+			statusBar.GetWindowRect(&t);
+			h -= t.Height();
+		}
+		if (toolBar.GetSafeHwnd()) {
+			toolBar.GetWindowRect(&t);
+			y += t.Height();
+			h -= t.Height();
+		}
 	}
 
-	int panelHeight = 0;
-	if (m_wndOutputPanel.GetSafeHwnd()) {
-		panelHeight = 120; 
+	// Move the main splitter frame
+	if (m_wndSplitter.GetSafeHwnd()) {
+		m_wndSplitter.MoveWindow(x, y, w, h);
 
-		int panelY = y + h - panelHeight;
-		m_wndOutputPanel.MoveWindow(x, panelY, w, panelHeight);
-
-		h -= panelHeight;
+		// Grab the left pane window handle and stretch the tabber to fill it completely
+		CWnd* pLeftPane = m_wndSplitter.GetPane(0, 0);
+		if (pLeftPane && pLeftPane->GetSafeHwnd() && tabber.GetSafeHwnd()) {
+			CRect lpRect;
+			pLeftPane->GetClientRect(&lpRect);
+			tabber.MoveWindow(0, 0, lpRect.Width(), lpRect.Height());
+		}
 	}
-
-	tabber.MoveWindow(x, y, w, h);
 }
+
+
 static char* bbFilter =
 
 "Blitz Basic files (.bb)|*.bb|"
@@ -996,14 +1042,14 @@ void MainFrame::quick_Help(){
 }
 
 void MainFrame::LogError(const char* text) {
-	if (!m_wndOutputPanel.GetSafeHwnd()) return;
 
-	int len = m_wndOutputPanel.GetWindowTextLength();
-	m_wndOutputPanel.SetSel(len, len);
+	statusBar.SetPaneText(0, text);
 
-	string formatted = string(text) + "\r\n";
-	m_wndOutputPanel.ReplaceSel(formatted.c_str());
+
+	OutputDebugStringA(text);
+	OutputDebugStringA("\n");
 }
+
 
 void MainFrame::OnActivate( UINT state,CWnd *other,BOOL min ){
 	CFrameWnd::OnActivate( state,other,min );
