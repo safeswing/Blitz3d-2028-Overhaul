@@ -43,6 +43,7 @@ cmake --build .
 <img width="342" height="412" alt="image" src="https://github.com/user-attachments/assets/f1475862-24c1-44c1-9305-42b285ac135b" />
 
 3. set up env path in blitzide example mine by using clone repository in visual studio
+or you need to set a BLITZPATH environment variable pointing to your _release folder
 
 `BLITZPATH=C:\Users\YOURUSER\source\repos\Blitz3d-2028-Overhaul\_release
 $(LocalDebuggerEnvironment)` 
