@@ -19,7 +19,14 @@ When installing Visual Studio, select the following workloads and components:
 ---
 
 1. make sure blitzide is the startup project
-2. set up env path in blitzide
+2. set up env path in blitzide example mine by using clone repository in visual studio
+
+BLITZPATH=C:\Users\Safeswing\source\repos\Blitz3d-2028-Overhaul\_release
+$(LocalDebuggerEnvironment)
+**in blitzide properties to configuration properties to debugging**
+
+<img width="599" height="527" alt="image" src="https://github.com/user-attachments/assets/3d2d319e-ae04-4ccf-9d21-933479a20ddc" />
+
 3.
   
 
