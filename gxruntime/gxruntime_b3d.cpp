@@ -883,77 +883,93 @@ gxGraphics *gxRuntime::openExclusiveGraphics( int w,int h,int d,bool d3d ){
 	return 0;
 }
 
-gxGraphics *gxRuntime::openGraphics( int w,int h,int d,int driver,int flags ){
-	if( graphics ) return 0;
+gxGraphics* gxRuntime::openGraphics(int w, int h, int d, int driver, int flags) {
+	if (graphics) return 0;
 
-	busy=true;
+	busy = true;
 
-	bool d3d=flags & gxGraphics::GRAPHICS_3D ? true : false;
-	bool windowed=flags & gxGraphics::GRAPHICS_WINDOWED ? true : false;
+	bool d3d = flags & gxGraphics::GRAPHICS_3D ? true : false;
+	bool windowed = flags & gxGraphics::GRAPHICS_WINDOWED ? true : false;
 
-	if( windowed ) driver=0;
+	if (windowed) driver = 0;
 
-	curr_driver=drivers[driver];
+	curr_driver = drivers[driver];
 
-	if( windowed ){
-		if( graphics=openWindowedGraphics( w,h,d,d3d ) ){
-			gfx_mode=(flags & gxGraphics::GRAPHICS_SCALED) ? 1 : 2;
-			auto_suspend=(flags & gxGraphics::GRAPHICS_AUTOSUSPEND) ? true : false;
-			int ws,ww,hh;
-			if( gfx_mode==1 ){
-				ws=scaled_ws;
-				RECT c_r;
-				GetClientRect( hwnd,&c_r );
-				ww=c_r.right-c_r.left;
-				hh=c_r.bottom-c_r.top;
-			}else{
-				ws=static_ws;
-				ww=w;
-				hh=h;
+	if (windowed) {
+		if (graphics = openWindowedGraphics(w, h, d, d3d)) {
+			gfx_mode = (flags & gxGraphics::GRAPHICS_SCALED) ? 1 : 2;
+			auto_suspend = (flags & gxGraphics::GRAPHICS_AUTOSUSPEND) ? true : false;
+
+			// Check if we are embedded inside the IDE viewport pane
+			bool isChild = (GetParent(hwnd) != 0);
+
+			if (!isChild) {
+				int ws, ww, hh;
+				if (gfx_mode == 1) {
+					ws = scaled_ws;
+					RECT c_r;
+					GetClientRect(hwnd, &c_r);
+					ww = c_r.right - c_r.left;
+					hh = c_r.bottom - c_r.top;
+				}
+				else {
+					ws = static_ws;
+					ww = w;
+					hh = h;
+				}
+
+				SetWindowLong(hwnd, GWL_STYLE, ws);
+				SetWindowPos(hwnd, 0, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+
+				RECT w_r, c_r;
+				GetWindowRect(hwnd, &w_r);
+				GetClientRect(hwnd, &c_r);
+				int tw = (w_r.right - w_r.left) - (c_r.right - c_r.left);
+				int th = (w_r.bottom - w_r.top) - (c_r.bottom - c_r.top);
+				int cx = (GetSystemMetrics(SM_CXSCREEN) - ww) / 2;
+				int cy = (GetSystemMetrics(SM_CYSCREEN) - hh) / 2;
+				POINT zz = { 0,0 };
+				ClientToScreen(hwnd, &zz);
+				int bw = zz.x - w_r.left, bh = zz.y - w_r.top;
+				int wx = cx - bw, wy = cy - bh;if (wy < 0) wy = 0;		//not above top!
+				MoveWindow(hwnd, wx, wy, ww + tw, hh + th, true);
 			}
-
-			SetWindowLong(hwnd, GWL_STYLE, ws);
-			SetWindowPos(hwnd, 0, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
-
-			RECT w_r, c_r;
-			GetWindowRect(hwnd, &w_r);
-			GetClientRect(hwnd, &c_r);
-			int tw = (w_r.right - w_r.left) - (c_r.right - c_r.left);
-			int th = (w_r.bottom - w_r.top) - (c_r.bottom - c_r.top);
-			int cx = (GetSystemMetrics(SM_CXSCREEN) - ww) / 2;
-			int cy = (GetSystemMetrics(SM_CYSCREEN) - hh) / 2;
-			POINT zz = { 0,0 };
-			ClientToScreen(hwnd, &zz);
-			int bw = zz.x - w_r.left, bh = zz.y - w_r.top;
-			int wx = cx - bw, wy = cy - bh;if (wy < 0) wy = 0;		//not above top!
-			MoveWindow(hwnd, wx, wy, ww + tw, hh + th, true);
+			else {
+				// If embedded, resize to fit the parent pane area perfectly
+				RECT rc;
+				GetClientRect(GetParent(hwnd), &rc);
+				SetWindowPos(hwnd, 0, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_FRAMECHANGED);
+			}
 		}
-	}else{
+	}
+	else {
 		backupWindowState();
 
-		SetWindowLong( hwnd,GWL_STYLE,WS_VISIBLE|WS_POPUP );
-		SetWindowPos( hwnd,0,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_FRAMECHANGED );
+		SetWindowLong(hwnd, GWL_STYLE, WS_VISIBLE | WS_POPUP);
+		SetWindowPos(hwnd, 0, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 
-		ShowCursor( 0 );
-		if( graphics=openExclusiveGraphics( w,h,d,d3d ) ){
-			gfx_mode=3;
-			auto_suspend=true;
-			SetCursorPos(0,0);
+		ShowCursor(0);
+		if (graphics = openExclusiveGraphics(w, h, d, d3d)) {
+			gfx_mode = 3;
+			auto_suspend = true;
+			SetCursorPos(0, 0);
 			acquireInput();
-		}else{
-			ShowCursor( 1 );
+		}
+		else {
+			ShowCursor(1);
 			restoreWindowState();
 		}
 	}
 
-	if( !graphics ) curr_driver=0;
+	if (!graphics) curr_driver = 0;
 
-	gfx_lost=false;
+	gfx_lost = false;
 
-	busy=false;
+	busy = false;
 
 	return graphics;
 }
+
 
 void gxRuntime::closeGraphics( gxGraphics *g ){
 	if( !graphics || graphics!=g ) return;
