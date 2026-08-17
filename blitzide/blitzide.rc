@@ -105,6 +105,10 @@ BEGIN
         MENUITEM "&About Blitz3D!",             ID_ABOUT
         MENUITEM "&Error Codes",                ID_HELP_LAUNCHER_ERRORS
     END
+    POPUP "&Git"
+    BEGIN
+        MENUITEM "&Clone Repo",                 ID_GIT_CLONEREPO
+    END
 END
 
 

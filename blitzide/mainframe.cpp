@@ -52,6 +52,8 @@ BEGIN_MESSAGE_MAP(MainFrame, CFrameWnd)
 	ON_COMMAND(ID_ESCAPE, escape)
 	ON_COMMAND(ID_QUICKHELP, quick_Help)
 
+	ON_COMMAND(ID_GIT_CLONEREPO, gitClone)
+
 	ON_COMMAND(ID_EXECUTE, programExecute)
 	ON_COMMAND(ID_REEXECUTE, programReExecute)
 	ON_COMMAND(ID_COMPILE, programCompile)
@@ -557,6 +559,103 @@ bool MainFrame::save(int n) {
 	return true;
 }
 
+void MainFrame::gitClone() {
+	if (!OpenClipboard()) {
+		AfxMessageBox("Failed to open clipboard.");
+		return;
+	}
+
+	HANDLE hData = GetClipboardData(CF_TEXT);
+	if (hData == NULL) {
+		AfxMessageBox("Clipboard does not contain valid text.");
+		CloseClipboard();
+		return;
+	}
+
+	char* pszText = static_cast<char*>(GlobalLock(hData));
+	if (pszText == NULL) {
+		AfxMessageBox("Failed to lock clipboard memory.");
+		CloseClipboard();
+		return;
+	}
+
+	string gitUrl(pszText);
+	GlobalUnlock(hData);
+	CloseClipboard();
+
+	if (gitUrl.find("http") != 0 && gitUrl.find("git@") != 0) {
+		AfxMessageBox("Clipboard text does not look like a valid URL.");
+		return;
+	}
+
+	IFileDialog* pfd = NULL;
+	HRESULT hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd));
+	if (FAILED(hr)) {
+		AfxMessageBox("Failed to open folder selector.");
+		return;
+	}
+
+	DWORD dwOptions;
+	pfd->GetOptions(&dwOptions);
+	pfd->SetOptions(dwOptions | FOS_PICKFOLDERS);
+
+	hr = pfd->Show(NULL);
+	if (FAILED(hr)) {
+		pfd->Release();
+		return;
+	}
+
+	IShellItem* psiResult = NULL;
+	hr = pfd->GetResult(&psiResult);
+	if (FAILED(hr)) {
+		pfd->Release();
+		return;
+	}
+
+	PWSTR pszPath = NULL;
+	hr = psiResult->GetDisplayName(SIGDN_FILESYSPATH, &pszPath);
+	if (FAILED(hr)) {
+		psiResult->Release();
+		pfd->Release();
+		return;
+	}
+
+	int size_needed = WideCharToMultiByte(CP_UTF8, 0, pszPath, -1, NULL, 0, NULL, NULL);
+	string destFolder(size_needed, 0);
+	WideCharToMultiByte(CP_UTF8, 0, pszPath, -1, &destFolder[0], size_needed, NULL, NULL);
+	destFolder.resize(size_needed - 1);
+
+	CoTaskMemFree(pszPath);
+	psiResult->Release();
+	pfd->Release();
+
+	string cmdString = "cmd.exe /c git clone \"" + gitUrl + "\" \"" + destFolder + "\"";
+
+	STARTUPINFOA si;
+	PROCESS_INFORMATION pi;
+	ZeroMemory(&si, sizeof(si));
+	si.cb = sizeof(si);
+	ZeroMemory(&pi, sizeof(pi));
+
+	if (CreateProcessA(NULL, (LPSTR)cmdString.c_str(), NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
+		WaitForSingleObject(pi.hProcess, INFINITE);
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
+
+		string mainBBFile = destFolder + "\\main.bb";
+		if (open(mainBBFile)) {
+			AfxMessageBox("Repository cloned and main.bb loaded!");
+		}
+		else {
+			AfxMessageBox("Repository cloned successfully!");
+		}
+	}
+	else {
+		AfxMessageBox("Failed to launch git process. Is Git in your system PATH?");
+	}
+}
+
+
 void MainFrame::fileNew() {
 	newed("");
 }
@@ -601,6 +700,7 @@ void MainFrame::fileCloseAll() {
 void MainFrame::fileExit() {
 	PostMessage(WM_CLOSE);
 }
+
 
 void MainFrame::fileRecent(UINT id) {
 	size_t index = id - 333;

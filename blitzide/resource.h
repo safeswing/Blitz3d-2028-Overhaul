@@ -69,14 +69,16 @@
 #define ID_REEXECUTE                    40130
 #define ID_SUPPORT                      40131
 #define ID_HELP_ERRORCODES              40133
-#define ID_HELP_LAUNCHER_ERRORS         45000 // Note this is not same as the 40133 and has different purpose
+#define ID_GIT_CLONEGIT                 40134
+#define ID_GIT_CLONEREPO                40135
+#define ID_HELP_LAUNCHER_ERRORS         45000
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        134
-#define _APS_NEXT_COMMAND_VALUE         40134
+#define _APS_NEXT_COMMAND_VALUE         40136
 #define _APS_NEXT_CONTROL_VALUE         1025
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

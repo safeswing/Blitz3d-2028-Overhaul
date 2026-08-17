@@ -59,6 +59,8 @@ public:
 	afx_msg void helpAbout();
 	afx_msg void helpErrorCodes();
 
+	afx_msg void gitClone();
+
 	afx_msg void updateCmdUI(CCmdUI* ui);
 	afx_msg void updateCmdUIRange(CCmdUI* ui);
 	afx_msg void ctrlTab();
